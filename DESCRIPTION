@@ -1,0 +1,13 @@
+Package: tracer
+Type: Package
+Title: Save Trace Information for Optimization Routines
+Version: 0.1
+Date: 2015-05-28
+Author: Noam Ross
+Maintainer: Noam Ross <noam.ross@gmail.com>
+Description: Wraps optimization routines and captures the trace information
+  of function evaluations.
+License: MIT
+Imports: stringi, magrittr, nloptr
+LazyData: TRUE
+Suggests: testthat
