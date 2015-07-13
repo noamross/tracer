@@ -23,22 +23,30 @@ nloptr_tr = function( x0,
   opts$print_level = 3
 
   printed_output <- NULL
-  conn <- textConnection("printed_output", "w", local = TRUE)
-  sink(conn, type="output", split=split)
 
-  out <- nloptr( x0,
-                 eval_f,
-                 eval_grad_f,
-                 lb,
-                 ub,
-                 eval_g_ineq,
-                 eval_jac_g_ineq,
-                 eval_g_eq,
-                 eval_jac_g_eq,
-                 opts,
-                 ...)
+  withCallingHandlers({
+    conn <- textConnection("printed_output", "w", local = TRUE)
+    sink(conn, type="output", split=split)
+    out <- nloptr( x0,
+                   eval_f,
+                   eval_grad_f,
+                   lb,
+                   ub,
+                   eval_g_ineq,
+                   eval_jac_g_ineq,
+                   eval_g_eq,
+                   eval_jac_g_eq,
+                   opts,
+                   ...)
 
-  sink()
+    sink(file=NULL)
+  },
+    error = function(e) {
+    for(i in seq_len(sink.number())){
+        sink(NULL)
+    }
+      e
+  })
 
   trace = paste(printed_output, collapse = "\n")
   trace_data = list(
@@ -52,7 +60,7 @@ nloptr_tr = function( x0,
       stri_trim_both(),
 
     xvals = trace %>%
-      stri_extract_all_regex("(?<=x = ?\\()[\\s\\-\\d\\,\\.]+", simplify=TRUE) %>%
+      stri_extract_all_regex("(?<=x = \\(?)[\\s\\-\\d\\,\\.]+", simplify=TRUE) %>%
       stri_trim_both() %>%
       stri_split_regex("[\\s\\,]+", simplify=TRUE),
 
@@ -79,4 +87,5 @@ nloptr_tr = function( x0,
   class(out) <- c(class(out), "traced")
   return(out)
 }
+
 
